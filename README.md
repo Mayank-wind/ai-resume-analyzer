@@ -1,7 +1,7 @@
 # 🚀 AI Resume Analyzer (SaaS)
 
-![Java](https://img.shields.io/badge/Java-17-orange)
-![Spring Boot](https://img.shields.io/badge/SpringBoot-3.x-brightgreen)
+![Java](https://img.shields.io/badge/Java-25-orange)
+![Spring Boot](https://img.shields.io/badge/SpringBoot-4.x-brightgreen)
 ![Status](https://img.shields.io/badge/Status-In%20Progress-yellow)
 
 An advanced AI-powered Resume Analyzer built using **Spring Boot, JWT Authentication, and OpenAI/Gemini API**. This application analyzes resumes, scores candidates, and provides intelligent improvement suggestions.
