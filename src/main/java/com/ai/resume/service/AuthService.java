@@ -5,6 +5,7 @@ import com.ai.resume.dto.LoginRequest;
 import com.ai.resume.dto.RegisterRequest;
 import com.ai.resume.entity.User;
 import com.ai.resume.repository.UserRepository;
+import com.ai.resume.security.JwtService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -13,10 +14,14 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public AuthService(UserRepository userRepository,
+                       PasswordEncoder passwordEncoder,
+                       JwtService jwtService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     public AuthResponse register(RegisterRequest request) {
@@ -32,8 +37,10 @@ public class AuthService {
 
         User savedUser = userRepository.save(user);
 
+        String token = jwtService.generateToken(savedUser.getEmail());
+
         return new AuthResponse(
-                null,
+                token,
                 "User registered successfully",
                 savedUser.getEmail(),
                 savedUser.getFullName()
@@ -48,8 +55,10 @@ public class AuthService {
             throw new RuntimeException("Invalid email or password");
         }
 
+        String token = jwtService.generateToken(user.getEmail());
+
         return new AuthResponse(
-                "TEMP_TOKEN",
+                token,
                 "Login successful",
                 user.getEmail(),
                 user.getFullName()
