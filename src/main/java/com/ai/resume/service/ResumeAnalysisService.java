@@ -14,12 +14,16 @@ public class ResumeAnalysisService {
     private final ResumeAnalysisRepository resumeAnalysisRepository;
     private final UserRepository userRepository;
     private final PdfService pdfService;
+    private final GeminiService geminiService;
 
     public ResumeAnalysisService(ResumeAnalysisRepository resumeAnalysisRepository,
-                                 UserRepository userRepository, PdfService pdfService) {
+                                 UserRepository userRepository,
+                                 PdfService pdfService,
+                                 GeminiService geminiService) {
         this.resumeAnalysisRepository = resumeAnalysisRepository;
         this.userRepository = userRepository;
-        this.pdfService=pdfService;
+        this.pdfService = pdfService;
+        this.geminiService = geminiService;
     }
 
     public ResumeAnalysisResponse uploadResume(MultipartFile file, String jobDescription, String email) {
@@ -28,12 +32,19 @@ public class ResumeAnalysisService {
 
         String extractedText = pdfService.extractText(file);
 
+        String feedback;
+        try {
+            feedback = geminiService.analyzeResume(extractedText, jobDescription);
+        } catch (Exception e) {
+            feedback = "AI analysis is temporarily unavailable";
+        }
+
         ResumeAnalysis analysis = new ResumeAnalysis();
         analysis.setFileName(file.getOriginalFilename());
         analysis.setExtractedText(extractedText);
         analysis.setJobDescription(jobDescription);
         analysis.setScore(0);
-        analysis.setFeedback("AI analysis pending");
+        analysis.setFeedback(feedback);
         analysis.setUser(user);
 
         ResumeAnalysis saved = resumeAnalysisRepository.save(analysis);
