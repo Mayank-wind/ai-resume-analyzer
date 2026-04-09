@@ -13,20 +13,24 @@ public class ResumeAnalysisService {
 
     private final ResumeAnalysisRepository resumeAnalysisRepository;
     private final UserRepository userRepository;
+    private final PdfService pdfService;
 
     public ResumeAnalysisService(ResumeAnalysisRepository resumeAnalysisRepository,
-                                 UserRepository userRepository) {
+                                 UserRepository userRepository, PdfService pdfService) {
         this.resumeAnalysisRepository = resumeAnalysisRepository;
         this.userRepository = userRepository;
+        this.pdfService=pdfService;
     }
 
     public ResumeAnalysisResponse uploadResume(MultipartFile file, String jobDescription, String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        String extractedText = pdfService.extractText(file);
+
         ResumeAnalysis analysis = new ResumeAnalysis();
         analysis.setFileName(file.getOriginalFilename());
-        analysis.setExtractedText("PDF text extraction pending");
+        analysis.setExtractedText(extractedText);
         analysis.setJobDescription(jobDescription);
         analysis.setScore(0);
         analysis.setFeedback("AI analysis pending");
