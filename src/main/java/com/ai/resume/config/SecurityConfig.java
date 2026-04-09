@@ -38,7 +38,14 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/health", "/api/auth/**").permitAll()
+                        .requestMatchers(
+                                "/",
+                                "/index.html",
+                                "/style.css",
+                                "/app.js",
+                                "/api/health",
+                                "/api/auth/**"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
@@ -53,5 +60,4 @@ public class SecurityConfig {
         provider.setPasswordEncoder(passwordEncoder);
         return provider;
     }
-
 }
