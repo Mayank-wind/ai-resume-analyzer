@@ -36,12 +36,25 @@ public class ResumeAnalysisService {
 
         String feedback;
         int score;
+        String strengths;
+        String weaknesses;
+        String improvements;
+        String summary;
+
         try {
             feedback = geminiService.analyzeResume(extractedText, jobDescription);
             score = geminiService.extractScore(feedback);
+            strengths = geminiService.extractSection(feedback, "Strengths", "Weaknesses", "Improvements", "Summary");
+            weaknesses = geminiService.extractSection(feedback, "Weaknesses", "Improvements", "Summary");
+            improvements = geminiService.extractSection(feedback, "Improvements", "Summary");
+            summary = geminiService.extractSection(feedback, "Summary");
         } catch (Exception e) {
             feedback = "AI analysis is temporarily unavailable";
             score = 0;
+            strengths = "";
+            weaknesses = "";
+            improvements = "";
+            summary = "";
         }
 
 
@@ -51,7 +64,12 @@ public class ResumeAnalysisService {
         analysis.setJobDescription(jobDescription);
         analysis.setScore(score);
         analysis.setFeedback(feedback);
+        analysis.setStrengths(strengths);
+        analysis.setWeaknesses(weaknesses);
+        analysis.setImprovements(improvements);
+        analysis.setSummary(summary);
         analysis.setUser(user);
+
 
         ResumeAnalysis saved = resumeAnalysisRepository.save(analysis);
 
@@ -86,6 +104,10 @@ public class ResumeAnalysisService {
                 analysis.getJobDescription(),
                 analysis.getScore(),
                 analysis.getFeedback(),
+                analysis.getStrengths(),
+                analysis.getWeaknesses(),
+                analysis.getImprovements(),
+                analysis.getSummary(),
                 analysis.getCreatedAt()
         );
     }

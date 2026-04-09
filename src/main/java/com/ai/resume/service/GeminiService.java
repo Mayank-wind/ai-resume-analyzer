@@ -67,14 +67,21 @@ public class GeminiService {
         return """
             Analyze the following resume for a job candidate.
 
-            Return:
-            1. A candidate score out of 100 at the very beginning in this format:
-               Score: <number>
-            2. Overall strengths
-            3. Weaknesses
-            4. Suggested improvements
-            5. Skill gaps compared to the job description
-            6. A short recruiter-style summary
+            Return the analysis in exactly this format:
+
+            Score: <number>
+
+            Strengths:
+            <write strengths>
+
+            Weaknesses:
+            <write weaknesses>
+
+            Improvements:
+            <write improvements>
+
+            Summary:
+            <write short recruiter summary>
 
             Job Description:
             %s
@@ -86,6 +93,7 @@ public class GeminiService {
                 resumeText
         );
     }
+
 
     public int extractScore(String feedback) {
         try {
@@ -100,5 +108,26 @@ public class GeminiService {
         } catch (Exception ignored) {
         }
         return 0;
+    }
+    public String extractSection(String feedback, String sectionTitle, String... nextSections) {
+        String lowerFeedback = feedback.toLowerCase();
+        String startToken = sectionTitle.toLowerCase() + ":";
+        int start = lowerFeedback.indexOf(startToken);
+
+        if (start == -1) {
+            return "";
+        }
+
+        start = start + startToken.length();
+
+        int end = feedback.length();
+        for (String nextSection : nextSections) {
+            int nextIndex = lowerFeedback.indexOf(nextSection.toLowerCase() + ":", start);
+            if (nextIndex != -1 && nextIndex < end) {
+                end = nextIndex;
+            }
+        }
+
+        return feedback.substring(start, end).trim();
     }
 }

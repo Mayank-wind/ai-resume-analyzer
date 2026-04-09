@@ -13,19 +13,29 @@ public class ResumeAnalysisResponse {
     private Integer score;
     private String feedback;
     private LocalDateTime createdAt;
+    private String strengths;
+    private String weaknesses;
+    private String improvements;
+    private String summary;
 
     public ResumeAnalysisResponse() {
     }
 
     public ResumeAnalysisResponse(Long id, String fileName, String extractedText,
                                   String jobDescription, Integer score,
-                                  String feedback, LocalDateTime createdAt) {
+                                  String feedback, String strengths,
+                                  String weaknesses, String improvements,
+                                  String summary, LocalDateTime createdAt) {
         this.id = id;
         this.fileName = fileName;
         this.extractedText = extractedText;
         this.jobDescription = jobDescription;
         this.score = score;
         this.feedback = feedback;
+        this.strengths = strengths;
+        this.weaknesses = weaknesses;
+        this.improvements = improvements;
+        this.summary = summary;
         this.createdAt = createdAt;
     }
 }
