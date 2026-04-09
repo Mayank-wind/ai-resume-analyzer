@@ -35,17 +35,21 @@ public class ResumeAnalysisService {
         String extractedText = pdfService.extractText(file);
 
         String feedback;
+        int score;
         try {
             feedback = geminiService.analyzeResume(extractedText, jobDescription);
+            score = geminiService.extractScore(feedback);
         } catch (Exception e) {
             feedback = "AI analysis is temporarily unavailable";
+            score = 0;
         }
+
 
         ResumeAnalysis analysis = new ResumeAnalysis();
         analysis.setFileName(file.getOriginalFilename());
         analysis.setExtractedText(extractedText);
         analysis.setJobDescription(jobDescription);
-        analysis.setScore(0);
+        analysis.setScore(score);
         analysis.setFeedback(feedback);
         analysis.setUser(user);
 

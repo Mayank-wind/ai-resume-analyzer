@@ -65,23 +65,40 @@ public class GeminiService {
 
     private String buildPrompt(String resumeText, String jobDescription) {
         return """
-                Analyze the following resume for a job candidate.
+            Analyze the following resume for a job candidate.
 
-                Give:
-                1. Overall strengths
-                2. Weaknesses
-                3. Suggested improvements
-                4. Skill gaps compared to the job description
-                5. A short recruiter-style summary
+            Return:
+            1. A candidate score out of 100 at the very beginning in this format:
+               Score: <number>
+            2. Overall strengths
+            3. Weaknesses
+            4. Suggested improvements
+            5. Skill gaps compared to the job description
+            6. A short recruiter-style summary
 
-                Job Description:
-                %s
+            Job Description:
+            %s
 
-                Resume Text:
-                %s
-                """.formatted(
+            Resume Text:
+            %s
+            """.formatted(
                 jobDescription != null ? jobDescription : "No job description provided",
                 resumeText
         );
+    }
+
+    public int extractScore(String feedback) {
+        try {
+            String[] lines = feedback.split("\\R");
+            for (String line : lines) {
+                line = line.trim();
+                if (line.toLowerCase().startsWith("score:")) {
+                    String value = line.substring(6).trim();
+                    return Integer.parseInt(value.replaceAll("[^0-9]", ""));
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return 0;
     }
 }
