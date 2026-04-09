@@ -8,6 +8,8 @@ import com.ai.resume.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @Service
 public class ResumeAnalysisService {
 
@@ -49,14 +51,38 @@ public class ResumeAnalysisService {
 
         ResumeAnalysis saved = resumeAnalysisRepository.save(analysis);
 
+        return mapToResponse(saved);
+    }
+
+    public List<ResumeAnalysisResponse> getMyAnalyses(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return resumeAnalysisRepository.findByUserIdOrderByCreatedAtDesc(user.getId())
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    public ResumeAnalysisResponse getAnalysisById(Long id, String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        ResumeAnalysis analysis = resumeAnalysisRepository.findByIdAndUserId(id, user.getId())
+                .orElseThrow(() -> new RuntimeException("Analysis not found"));
+
+        return mapToResponse(analysis);
+    }
+
+    private ResumeAnalysisResponse mapToResponse(ResumeAnalysis analysis) {
         return new ResumeAnalysisResponse(
-                saved.getId(),
-                saved.getFileName(),
-                saved.getExtractedText(),
-                saved.getJobDescription(),
-                saved.getScore(),
-                saved.getFeedback(),
-                saved.getCreatedAt()
+                analysis.getId(),
+                analysis.getFileName(),
+                analysis.getExtractedText(),
+                analysis.getJobDescription(),
+                analysis.getScore(),
+                analysis.getFeedback(),
+                analysis.getCreatedAt()
         );
     }
 }

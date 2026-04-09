@@ -6,6 +6,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/resumes")
 public class ResumeAnalysisController {
@@ -23,5 +25,15 @@ public class ResumeAnalysisController {
             Authentication authentication
     ) {
         return resumeAnalysisService.uploadResume(file, jobDescription, authentication.getName());
+    }
+
+    @GetMapping
+    public List<ResumeAnalysisResponse> getMyAnalyses(Authentication authentication) {
+        return resumeAnalysisService.getMyAnalyses(authentication.getName());
+    }
+
+    @GetMapping("/{id}")
+    public ResumeAnalysisResponse getAnalysisById(@PathVariable Long id, Authentication authentication) {
+        return resumeAnalysisService.getAnalysisById(id, authentication.getName());
     }
 }
