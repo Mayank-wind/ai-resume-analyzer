@@ -100,3 +100,32 @@ p {
     color: var(--muted);
     line-height: 1.5;
 }
+textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    font-size: 0.95rem;
+    resize: vertical;
+    min-height: 120px;
+}
+
+.analysis-box {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    white-space: pre-wrap;
+    line-height: 1.6;
+    color: var(--text);
+}
+
+.analysis-section {
+    margin-bottom: 16px;
+}
+
+.analysis-section h3 {
+    margin-bottom: 8px;
+    color: var(--primary-dark);
+    font-size: 1rem;
+}

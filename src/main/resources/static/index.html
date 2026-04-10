@@ -47,6 +47,23 @@
         <p><strong>Token Status:</strong> <span id="tokenStatus">No token saved</span></p>
         <button id="logoutBtn">Logout</button>
     </section>
+
+    <section class="card">
+        <h2>Upload Resume</h2>
+        <form id="uploadForm">
+            <input type="file" id="resumeFile" accept=".pdf" required />
+            <textarea id="jobDescription" placeholder="Paste job description here..." rows="6"></textarea>
+            <button type="submit">Upload and Analyze</button>
+        </form>
+        <p id="uploadResult"></p>
+    </section>
+
+    <section class="card">
+        <h2>Analysis Result</h2>
+        <div id="analysisResult" class="analysis-box">
+            <p>No analysis yet.</p>
+        </div>
+    </section>
 </div>
 
 <script src="app.js"></script>
