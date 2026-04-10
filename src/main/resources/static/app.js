@@ -2,22 +2,45 @@ const API_BASE = "http://localhost:8080";
 
 const healthBtn = document.getElementById("healthBtn");
 const healthResult = document.getElementById("healthResult");
+
 const registerForm = document.getElementById("registerForm");
 const registerResult = document.getElementById("registerResult");
+const registerBtn = document.getElementById("registerBtn");
+
 const loginForm = document.getElementById("loginForm");
 const loginResult = document.getElementById("loginResult");
+const loginBtn = document.getElementById("loginBtn");
+
 const tokenStatus = document.getElementById("tokenStatus");
 const logoutBtn = document.getElementById("logoutBtn");
+
 const uploadForm = document.getElementById("uploadForm");
 const uploadResult = document.getElementById("uploadResult");
+const uploadBtn = document.getElementById("uploadBtn");
 const analysisResult = document.getElementById("analysisResult");
+
 const loadHistoryBtn = document.getElementById("loadHistoryBtn");
 const historyList = document.getElementById("historyList");
 
+const globalMessage = document.getElementById("globalMessage");
 
 function updateTokenStatus() {
     const token = localStorage.getItem("token");
     tokenStatus.textContent = token ? "Token saved" : "No token saved";
+}
+
+function showGlobalMessage(message, type = "success") {
+    globalMessage.textContent = message;
+    globalMessage.className = `global-message ${type}`;
+    setTimeout(() => {
+        globalMessage.className = "global-message hidden";
+        globalMessage.textContent = "";
+    }, 3000);
+}
+
+function setButtonLoading(button, loadingText, originalText, isLoading) {
+    button.disabled = isLoading;
+    button.textContent = isLoading ? loadingText : originalText;
 }
 
 function renderAnalysis(data) {
@@ -98,8 +121,10 @@ async function loadSingleAnalysis(id) {
         }
 
         renderAnalysis(data);
+        showGlobalMessage("Analysis loaded successfully.");
     } catch (error) {
         historyList.innerHTML = "<p>Failed to load selected analysis.</p>";
+        showGlobalMessage("Failed to load selected analysis.", "error");
     }
 }
 
@@ -108,13 +133,16 @@ healthBtn.addEventListener("click", async () => {
         const response = await fetch(`${API_BASE}/api/health`);
         const data = await response.json();
         healthResult.textContent = `${data.status} - ${data.service}`;
+        showGlobalMessage("Backend is reachable.");
     } catch (error) {
         healthResult.textContent = "Backend connection failed";
+        showGlobalMessage("Backend connection failed.", "error");
     }
 });
 
 registerForm.addEventListener("submit", async (event) => {
     event.preventDefault();
+    setButtonLoading(registerBtn, "Registering...", "Register", true);
 
     const payload = {
         fullName: document.getElementById("registerName").value,
@@ -125,9 +153,7 @@ registerForm.addEventListener("submit", async (event) => {
     try {
         const response = await fetch(`${API_BASE}/api/auth/register`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         });
 
@@ -135,6 +161,7 @@ registerForm.addEventListener("submit", async (event) => {
 
         if (!response.ok) {
             registerResult.textContent = data.message || "Registration failed";
+            showGlobalMessage(registerResult.textContent, "error");
             return;
         }
 
@@ -143,13 +170,18 @@ registerForm.addEventListener("submit", async (event) => {
             localStorage.setItem("token", data.token);
             updateTokenStatus();
         }
+        showGlobalMessage("Registration successful.");
     } catch (error) {
         registerResult.textContent = "Registration failed";
+        showGlobalMessage("Registration failed.", "error");
+    } finally {
+        setButtonLoading(registerBtn, "Registering...", "Register", false);
     }
 });
 
 loginForm.addEventListener("submit", async (event) => {
     event.preventDefault();
+    setButtonLoading(loginBtn, "Logging in...", "Login", true);
 
     const payload = {
         email: document.getElementById("loginEmail").value,
@@ -159,9 +191,7 @@ loginForm.addEventListener("submit", async (event) => {
     try {
         const response = await fetch(`${API_BASE}/api/auth/login`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         });
 
@@ -169,14 +199,19 @@ loginForm.addEventListener("submit", async (event) => {
 
         if (!response.ok) {
             loginResult.textContent = data.message || "Login failed";
+            showGlobalMessage(loginResult.textContent, "error");
             return;
         }
 
         localStorage.setItem("token", data.token);
         loginResult.textContent = `Logged in as ${data.email}`;
         updateTokenStatus();
+        showGlobalMessage("Login successful.");
     } catch (error) {
         loginResult.textContent = "Login failed";
+        showGlobalMessage("Login failed.", "error");
+    } finally {
+        setButtonLoading(loginBtn, "Logging in...", "Login", false);
     }
 });
 
@@ -184,6 +219,7 @@ logoutBtn.addEventListener("click", () => {
     localStorage.removeItem("token");
     updateTokenStatus();
     loginResult.textContent = "Logged out";
+    showGlobalMessage("Logged out successfully.");
 });
 
 uploadForm.addEventListener("submit", async (event) => {
@@ -192,6 +228,7 @@ uploadForm.addEventListener("submit", async (event) => {
     const token = localStorage.getItem("token");
     if (!token) {
         uploadResult.textContent = "Please login first.";
+        showGlobalMessage("Please login first.", "error");
         return;
     }
 
@@ -200,8 +237,11 @@ uploadForm.addEventListener("submit", async (event) => {
 
     if (!fileInput.files.length) {
         uploadResult.textContent = "Please choose a PDF file.";
+        showGlobalMessage("Please choose a PDF file.", "error");
         return;
     }
+
+    setButtonLoading(uploadBtn, "Analyzing...", "Upload and Analyze", true);
 
     const formData = new FormData();
     formData.append("file", fileInput.files[0]);
@@ -220,22 +260,31 @@ uploadForm.addEventListener("submit", async (event) => {
 
         if (!response.ok) {
             uploadResult.textContent = data.message || "Upload failed";
+            showGlobalMessage(uploadResult.textContent, "error");
             return;
         }
 
         uploadResult.textContent = "Resume uploaded and analyzed successfully.";
         renderAnalysis(data);
+        showGlobalMessage("Resume analyzed successfully.");
     } catch (error) {
         uploadResult.textContent = "Upload failed.";
+        showGlobalMessage("Upload failed.", "error");
+    } finally {
+        setButtonLoading(uploadBtn, "Analyzing...", "Upload and Analyze", false);
     }
 });
+
 loadHistoryBtn.addEventListener("click", async () => {
     const token = localStorage.getItem("token");
 
     if (!token) {
         historyList.innerHTML = "<p>Please login first.</p>";
+        showGlobalMessage("Please login first.", "error");
         return;
     }
+
+    setButtonLoading(loadHistoryBtn, "Loading...", "Load My Analyses", true);
 
     try {
         const response = await fetch(`${API_BASE}/api/resumes`, {
@@ -248,12 +297,17 @@ loadHistoryBtn.addEventListener("click", async () => {
 
         if (!response.ok) {
             historyList.innerHTML = `<p>${data.message || "Failed to load history."}</p>`;
+            showGlobalMessage("Failed to load history.", "error");
             return;
         }
 
         renderHistory(data);
+        showGlobalMessage("History loaded successfully.");
     } catch (error) {
         historyList.innerHTML = "<p>Failed to load history.</p>";
+        showGlobalMessage("Failed to load history.", "error");
+    } finally {
+        setButtonLoading(loadHistoryBtn, "Loading...", "Load My Analyses", false);
     }
 });
 
