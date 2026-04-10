@@ -1,57 +1,76 @@
-# 🚀 AI Resume Analyzer (SaaS)
+# AI Resume Analyzer (SaaS)
 
 ![Java](https://img.shields.io/badge/Java-25-orange)
 ![Spring Boot](https://img.shields.io/badge/SpringBoot-4.x-brightgreen)
-![Status](https://img.shields.io/badge/Status-In%20Progress-yellow)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Ready-blue)
+![Status](https://img.shields.io/badge/Status-Active-success)
 
-An advanced AI-powered Resume Analyzer built using **Spring Boot, JWT Authentication, and OpenAI/Gemini API**. This application analyzes resumes, scores candidates, and provides intelligent improvement suggestions.
-
----
-
-## 🔥 Features
-- 📄 Upload Resume (PDF)
-- 🧠 AI-powered Resume Analysis
-- 📊 Resume Scoring System (skills, experience, structure)
-- 💡 Smart Suggestions for Improvement
-- 🔐 Secure Authentication (JWT-based login/signup)
-- 🗄️ Database Storage (User + Analysis Results)
+An advanced AI-powered Resume Analyzer built using **Spring Boot, JWT Authentication, PostgreSQL-ready configuration, and Gemini API**. This application allows users to upload PDF resumes, analyze them with AI, score candidates, and review previous analysis history through a browser-based interface.
 
 ---
 
-## 🛠️ Tech Stack
+## Features
+- Upload Resume in PDF format
+- Extract PDF text using Apache PDFBox
+- AI-powered resume analysis using Gemini
+- AI-generated candidate score
+- Structured analysis output:
+    - strengths
+    - weaknesses
+    - improvements
+    - summary
+- Secure JWT-based authentication
+- Resume analysis history per user
+- Frontend built with HTML, CSS, and JavaScript
+- PostgreSQL-ready backend configuration
+- Clean global exception handling
+
+---
+
+## Tech Stack
 
 ### Backend
-- Java
-- Spring Boot
-- Spring Security (JWT)
+- Java 25
+- Spring Boot 4
+- Spring Security
 - Spring Data JPA
-- MySQL / PostgreSQL
+- Hibernate
+- PostgreSQL
+- H2 (fallback for local/dev)
 
 ### AI Integration
-- OpenAI API / Gemini API
+- Gemini API
+
+### Frontend
+- HTML
+- CSS
+- JavaScript
 
 ### Tools & Libraries
-- Apache PDFBox (PDF parsing)
+- Apache PDFBox
 - Lombok
 - Maven
 
 ---
 
-## 🏗️ Project Architecture
+## Project Architecture
 This project follows a layered architecture for scalability and maintainability.
 
+```text
 ai-resume-analyzer/
 │
-├── controller/        # Handles HTTP requests (REST APIs)
-├── service/           # Business logic layer
-├── repository/        # Database interaction (JPA Repositories)
-├── entity/            # Database entities (User, Resume, Analysis)
-├── dto/               # Data Transfer Objects (Request/Response)
-├── security/          # JWT authentication & authorization
-├── config/            # Configuration classes (Security, CORS, etc.)
+├── controller/        # REST API controllers
+├── service/           # Business logic and AI integration
+├── repository/        # JPA repositories
+├── entity/            # Database entities
+├── dto/               # Request/response objects
+├── security/          # JWT auth and filters
+├── config/            # Security and global exception config
 │
 └── resources/
-└── application.properties   # App configuration
+    ├── static/        # Frontend files
+    └── application.properties
+
 
 Layer Responsibilities:
 - Controller → Handles HTTP requests & APIs
@@ -61,9 +80,9 @@ Layer Responsibilities:
 - DTO → Data transfer objects
 - Security → JWT authentication
 - Config → App configurations
-
+```
 ---
-
+'/'
 ## ⚙️ How It Works
 1. User registers and logs in
 2. Uploads resume (PDF)
