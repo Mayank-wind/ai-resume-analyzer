@@ -2,19 +2,18 @@ const API_BASE = "http://localhost:8080";
 
 const healthBtn = document.getElementById("healthBtn");
 const healthResult = document.getElementById("healthResult");
-
 const registerForm = document.getElementById("registerForm");
 const registerResult = document.getElementById("registerResult");
-
 const loginForm = document.getElementById("loginForm");
 const loginResult = document.getElementById("loginResult");
-
 const tokenStatus = document.getElementById("tokenStatus");
 const logoutBtn = document.getElementById("logoutBtn");
-
 const uploadForm = document.getElementById("uploadForm");
 const uploadResult = document.getElementById("uploadResult");
 const analysisResult = document.getElementById("analysisResult");
+const loadHistoryBtn = document.getElementById("loadHistoryBtn");
+const historyList = document.getElementById("historyList");
+
 
 function updateTokenStatus() {
     const token = localStorage.getItem("token");
@@ -52,6 +51,56 @@ function renderAnalysis(data) {
             <p>${data.feedback || "-"}</p>
         </div>
     `;
+}
+
+function renderHistory(items) {
+    if (!items.length) {
+        historyList.innerHTML = "<p>No analyses found.</p>";
+        return;
+    }
+
+    historyList.innerHTML = items.map(item => `
+        <div class="history-item" data-id="${item.id}">
+            <h3>${item.fileName || "Untitled Resume"}</h3>
+            <p><strong>Score:</strong> ${item.score ?? 0}</p>
+            <p><strong>Created:</strong> ${item.createdAt || "-"}</p>
+            <p><strong>Summary:</strong> ${item.summary || "No summary available"}</p>
+        </div>
+    `).join("");
+
+    document.querySelectorAll(".history-item").forEach(card => {
+        card.addEventListener("click", async () => {
+            const id = card.getAttribute("data-id");
+            await loadSingleAnalysis(id);
+        });
+    });
+}
+
+async function loadSingleAnalysis(id) {
+    const token = localStorage.getItem("token");
+    if (!token) {
+        historyList.innerHTML = "<p>Please login first.</p>";
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE}/api/resumes/${id}`, {
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            historyList.innerHTML = `<p>${data.message || "Failed to load analysis."}</p>`;
+            return;
+        }
+
+        renderAnalysis(data);
+    } catch (error) {
+        historyList.innerHTML = "<p>Failed to load selected analysis.</p>";
+    }
 }
 
 healthBtn.addEventListener("click", async () => {
@@ -178,6 +227,33 @@ uploadForm.addEventListener("submit", async (event) => {
         renderAnalysis(data);
     } catch (error) {
         uploadResult.textContent = "Upload failed.";
+    }
+});
+loadHistoryBtn.addEventListener("click", async () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        historyList.innerHTML = "<p>Please login first.</p>";
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE}/api/resumes`, {
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            historyList.innerHTML = `<p>${data.message || "Failed to load history."}</p>`;
+            return;
+        }
+
+        renderHistory(data);
+    } catch (error) {
+        historyList.innerHTML = "<p>Failed to load history.</p>";
     }
 });
 

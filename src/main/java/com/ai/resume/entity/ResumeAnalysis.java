@@ -15,17 +15,14 @@ public class ResumeAnalysis {
 
     private String fileName;
 
-    @Lob
     @Column(columnDefinition = "TEXT")
     private String extractedText;
 
-    @Lob
     @Column(columnDefinition = "TEXT")
     private String jobDescription;
 
     private Integer score;
 
-    @Lob
     @Column(columnDefinition = "TEXT")
     private String feedback;
 
@@ -40,19 +37,15 @@ public class ResumeAnalysis {
         this.createdAt = LocalDateTime.now();
     }
 
-    @Lob
     @Column(columnDefinition = "TEXT")
     private String strengths;
 
-    @Lob
     @Column(columnDefinition = "TEXT")
     private String weaknesses;
 
-    @Lob
     @Column(columnDefinition = "TEXT")
     private String improvements;
 
-    @Lob
     @Column(columnDefinition = "TEXT")
     private String summary;
 
