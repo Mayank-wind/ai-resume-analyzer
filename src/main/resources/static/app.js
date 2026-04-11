@@ -23,6 +23,9 @@ const loadHistoryBtn = document.getElementById("loadHistoryBtn");
 const historyList = document.getElementById("historyList");
 
 const globalMessage = document.getElementById("globalMessage");
+const historySearch = document.getElementById("historySearch");
+
+let allHistoryItems = [];
 
 function updateTokenStatus() {
     const token = localStorage.getItem("token");
@@ -300,8 +303,8 @@ loadHistoryBtn.addEventListener("click", async () => {
             showGlobalMessage("Failed to load history.", "error");
             return;
         }
-
-        renderHistory(data);
+        allHistoryItems = data;
+        renderHistory(allHistoryItems);
         showGlobalMessage("History loaded successfully.");
     } catch (error) {
         historyList.innerHTML = "<p>Failed to load history.</p>";
@@ -310,5 +313,18 @@ loadHistoryBtn.addEventListener("click", async () => {
         setButtonLoading(loadHistoryBtn, "Loading...", "Load My Analyses", false);
     }
 });
+historySearch.addEventListener("input", () => {
+    const query = historySearch.value.toLowerCase().trim();
 
+    if (!query) {
+        renderHistory(allHistoryItems);
+        return;
+    }
+
+    const filtered = allHistoryItems.filter(item =>
+        (item.fileName || "").toLowerCase().includes(query)
+    );
+
+    renderHistory(filtered);
+});
 updateTokenStatus();
