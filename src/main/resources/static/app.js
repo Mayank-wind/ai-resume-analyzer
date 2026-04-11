@@ -24,8 +24,10 @@ const historyList = document.getElementById("historyList");
 
 const globalMessage = document.getElementById("globalMessage");
 const historySearch = document.getElementById("historySearch");
+const downloadReportBtn = document.getElementById("downloadReportBtn");
 
 let allHistoryItems = [];
+let currentAnalysis = null;
 
 function updateTokenStatus() {
     const token = localStorage.getItem("token");
@@ -47,6 +49,7 @@ function setButtonLoading(button, loadingText, originalText, isLoading) {
 }
 
 function renderAnalysis(data) {
+    currentAnalysis = data;
     analysisResult.innerHTML = `
         <div class="analysis-section">
             <h3>File Name</h3>
@@ -327,4 +330,51 @@ historySearch.addEventListener("input", () => {
 
     renderHistory(filtered);
 });
+downloadReportBtn.addEventListener("click", downloadAnalysisReport);
 updateTokenStatus();
+
+function downloadAnalysisReport() {
+    if (!currentAnalysis) {
+        showGlobalMessage("No analysis available to download.", "error");
+        return;
+    }
+
+    const reportContent = `
+AI Resume Analyzer Report
+=========================
+
+File Name: ${currentAnalysis.fileName || "-"}
+Score: ${currentAnalysis.score ?? 0}
+Created At: ${currentAnalysis.createdAt || "-"}
+
+Strengths:
+${currentAnalysis.strengths || "-"}
+
+Weaknesses:
+${currentAnalysis.weaknesses || "-"}
+
+Improvements:
+${currentAnalysis.improvements || "-"}
+
+Summary:
+${currentAnalysis.summary || "-"}
+
+Full Feedback:
+${currentAnalysis.feedback || "-"}
+    `.trim();
+
+    const blob = new Blob([reportContent], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${(currentAnalysis.fileName || "analysis-report").replace(".pdf", "")}-report.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+
+    showGlobalMessage("Analysis report downloaded successfully.");
+}
+
