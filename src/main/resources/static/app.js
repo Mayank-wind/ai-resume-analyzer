@@ -25,6 +25,10 @@ const historyList = document.getElementById("historyList");
 const globalMessage = document.getElementById("globalMessage");
 const historySearch = document.getElementById("historySearch");
 const downloadReportBtn = document.getElementById("downloadReportBtn");
+const totalAnalyses = document.getElementById("totalAnalyses");
+const averageScore = document.getElementById("averageScore");
+const latestResume = document.getElementById("latestResume");
+
 
 let allHistoryItems = [];
 let currentAnalysis = null;
@@ -81,6 +85,22 @@ function renderAnalysis(data) {
         </div>
     `;
 }
+function updateDashboardStats(items) {
+    totalAnalyses.textContent = items.length;
+
+    if (!items.length) {
+        averageScore.textContent = "0";
+        latestResume.textContent = "No data";
+        return;
+    }
+
+    const scores = items.map(item => item.score || 0);
+    const avg = Math.round(scores.reduce((sum, score) => sum + score, 0) / items.length);
+
+    averageScore.textContent = avg;
+    latestResume.textContent = items[0].fileName || "Unknown";
+}
+
 
 function renderHistory(items) {
     if (!items.length) {
@@ -308,6 +328,7 @@ loadHistoryBtn.addEventListener("click", async () => {
         }
         allHistoryItems = data;
         renderHistory(allHistoryItems);
+        updateDashboardStats(allHistoryItems);
         showGlobalMessage("History loaded successfully.");
     } catch (error) {
         historyList.innerHTML = "<p>Failed to load history.</p>";
