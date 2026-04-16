@@ -11,8 +11,8 @@ const loginForm = document.getElementById("loginForm");
 const loginResult = document.getElementById("loginResult");
 const loginBtn = document.getElementById("loginBtn");
 
-const tokenStatus = document.getElementById("tokenStatus");
 const logoutBtn = document.getElementById("logoutBtn");
+const userWelcome = document.getElementById("userWelcome");
 
 const uploadForm = document.getElementById("uploadForm");
 const uploadResult = document.getElementById("uploadResult");
@@ -21,21 +21,49 @@ const analysisResult = document.getElementById("analysisResult");
 
 const loadHistoryBtn = document.getElementById("loadHistoryBtn");
 const historyList = document.getElementById("historyList");
+const historySearch = document.getElementById("historySearch");
 
 const globalMessage = document.getElementById("globalMessage");
-const historySearch = document.getElementById("historySearch");
 const downloadReportBtn = document.getElementById("downloadReportBtn");
+
 const totalAnalyses = document.getElementById("totalAnalyses");
 const averageScore = document.getElementById("averageScore");
 const latestResume = document.getElementById("latestResume");
 
+const introSection = document.getElementById("introSection");
+const authSection = document.getElementById("authSection");
+const dashboardSection = document.getElementById("dashboardSection");
+const analysisSection = document.getElementById("analysisSection");
+const emptyStateCard = document.getElementById("emptyStateCard");
 
 let allHistoryItems = [];
 let currentAnalysis = null;
 
-function updateTokenStatus() {
+function updateAppState() {
     const token = localStorage.getItem("token");
-    tokenStatus.textContent = token ? "Token saved" : "No token saved";
+    const email = localStorage.getItem("userEmail");
+
+    if (token) {
+        introSection.classList.add("hidden");
+        authSection.classList.add("hidden");
+        dashboardSection.classList.remove("hidden");
+        logoutBtn.classList.remove("hidden");
+        userWelcome.classList.remove("hidden");
+        userWelcome.textContent = email ? `Welcome, ${email}` : "Welcome";
+    } else {
+        introSection.classList.remove("hidden");
+        authSection.classList.remove("hidden");
+        dashboardSection.classList.add("hidden");
+        logoutBtn.classList.add("hidden");
+        userWelcome.classList.add("hidden");
+        userWelcome.textContent = "";
+
+        analysisSection.classList.add("hidden");
+        emptyStateCard.classList.remove("hidden");
+
+        currentAnalysis = null;
+        allHistoryItems = [];
+    }
 }
 
 function showGlobalMessage(message, type = "success") {
@@ -54,6 +82,9 @@ function setButtonLoading(button, loadingText, originalText, isLoading) {
 
 function renderAnalysis(data) {
     currentAnalysis = data;
+    analysisSection.classList.remove("hidden");
+    emptyStateCard.classList.add("hidden");
+
     analysisResult.innerHTML = `
         <div class="analysis-section">
             <h3>File Name</h3>
@@ -85,6 +116,7 @@ function renderAnalysis(data) {
         </div>
     `;
 }
+
 function updateDashboardStats(items) {
     totalAnalyses.textContent = items.length;
 
@@ -94,13 +126,10 @@ function updateDashboardStats(items) {
         return;
     }
 
-    const scores = items.map(item => item.score || 0);
-    const avg = Math.round(scores.reduce((sum, score) => sum + score, 0) / items.length);
-
-    averageScore.textContent = avg;
+    const total = items.reduce((sum, item) => sum + (item.score || 0), 0);
+    averageScore.textContent = Math.round(total / items.length);
     latestResume.textContent = items[0].fileName || "Unknown";
 }
-
 
 function renderHistory(items) {
     if (!items.length) {
@@ -127,8 +156,9 @@ function renderHistory(items) {
 
 async function loadSingleAnalysis(id) {
     const token = localStorage.getItem("token");
+
     if (!token) {
-        historyList.innerHTML = "<p>Please login first.</p>";
+        showGlobalMessage("Please login first.", "error");
         return;
     }
 
@@ -142,217 +172,16 @@ async function loadSingleAnalysis(id) {
         const data = await response.json();
 
         if (!response.ok) {
-            historyList.innerHTML = `<p>${data.message || "Failed to load analysis."}</p>`;
+            showGlobalMessage(data.message || "Failed to load analysis.", "error");
             return;
         }
 
         renderAnalysis(data);
         showGlobalMessage("Analysis loaded successfully.");
     } catch (error) {
-        historyList.innerHTML = "<p>Failed to load selected analysis.</p>";
         showGlobalMessage("Failed to load selected analysis.", "error");
     }
 }
-
-healthBtn.addEventListener("click", async () => {
-    try {
-        const response = await fetch(`${API_BASE}/api/health`);
-        const data = await response.json();
-        healthResult.textContent = `${data.status} - ${data.service}`;
-        showGlobalMessage("Backend is reachable.");
-    } catch (error) {
-        healthResult.textContent = "Backend connection failed";
-        showGlobalMessage("Backend connection failed.", "error");
-    }
-});
-
-registerForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    setButtonLoading(registerBtn, "Registering...", "Register", true);
-
-    const payload = {
-        fullName: document.getElementById("registerName").value,
-        email: document.getElementById("registerEmail").value,
-        password: document.getElementById("registerPassword").value
-    };
-
-    try {
-        const response = await fetch(`${API_BASE}/api/auth/register`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            registerResult.textContent = data.message || "Registration failed";
-            showGlobalMessage(registerResult.textContent, "error");
-            return;
-        }
-
-        registerResult.textContent = `Registered: ${data.email}`;
-        if (data.token) {
-            localStorage.setItem("token", data.token);
-            updateTokenStatus();
-        }
-        showGlobalMessage("Registration successful.");
-    } catch (error) {
-        registerResult.textContent = "Registration failed";
-        showGlobalMessage("Registration failed.", "error");
-    } finally {
-        setButtonLoading(registerBtn, "Registering...", "Register", false);
-    }
-});
-
-loginForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    setButtonLoading(loginBtn, "Logging in...", "Login", true);
-
-    const payload = {
-        email: document.getElementById("loginEmail").value,
-        password: document.getElementById("loginPassword").value
-    };
-
-    try {
-        const response = await fetch(`${API_BASE}/api/auth/login`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            loginResult.textContent = data.message || "Login failed";
-            showGlobalMessage(loginResult.textContent, "error");
-            return;
-        }
-
-        localStorage.setItem("token", data.token);
-        loginResult.textContent = `Logged in as ${data.email}`;
-        updateTokenStatus();
-        showGlobalMessage("Login successful.");
-    } catch (error) {
-        loginResult.textContent = "Login failed";
-        showGlobalMessage("Login failed.", "error");
-    } finally {
-        setButtonLoading(loginBtn, "Logging in...", "Login", false);
-    }
-});
-
-logoutBtn.addEventListener("click", () => {
-    localStorage.removeItem("token");
-    updateTokenStatus();
-    loginResult.textContent = "Logged out";
-    showGlobalMessage("Logged out successfully.");
-});
-
-uploadForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-
-    const token = localStorage.getItem("token");
-    if (!token) {
-        uploadResult.textContent = "Please login first.";
-        showGlobalMessage("Please login first.", "error");
-        return;
-    }
-
-    const fileInput = document.getElementById("resumeFile");
-    const jobDescription = document.getElementById("jobDescription").value;
-
-    if (!fileInput.files.length) {
-        uploadResult.textContent = "Please choose a PDF file.";
-        showGlobalMessage("Please choose a PDF file.", "error");
-        return;
-    }
-
-    setButtonLoading(uploadBtn, "Analyzing...", "Upload and Analyze", true);
-
-    const formData = new FormData();
-    formData.append("file", fileInput.files[0]);
-    formData.append("jobDescription", jobDescription);
-
-    try {
-        const response = await fetch(`${API_BASE}/api/resumes/upload`, {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${token}`
-            },
-            body: formData
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            uploadResult.textContent = data.message || "Upload failed";
-            showGlobalMessage(uploadResult.textContent, "error");
-            return;
-        }
-
-        uploadResult.textContent = "Resume uploaded and analyzed successfully.";
-        renderAnalysis(data);
-        showGlobalMessage("Resume analyzed successfully.");
-    } catch (error) {
-        uploadResult.textContent = "Upload failed.";
-        showGlobalMessage("Upload failed.", "error");
-    } finally {
-        setButtonLoading(uploadBtn, "Analyzing...", "Upload and Analyze", false);
-    }
-});
-
-loadHistoryBtn.addEventListener("click", async () => {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-        historyList.innerHTML = "<p>Please login first.</p>";
-        showGlobalMessage("Please login first.", "error");
-        return;
-    }
-
-    setButtonLoading(loadHistoryBtn, "Loading...", "Load My Analyses", true);
-
-    try {
-        const response = await fetch(`${API_BASE}/api/resumes`, {
-            headers: {
-                "Authorization": `Bearer ${token}`
-            }
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            historyList.innerHTML = `<p>${data.message || "Failed to load history."}</p>`;
-            showGlobalMessage("Failed to load history.", "error");
-            return;
-        }
-        allHistoryItems = data;
-        renderHistory(allHistoryItems);
-        updateDashboardStats(allHistoryItems);
-        showGlobalMessage("History loaded successfully.");
-    } catch (error) {
-        historyList.innerHTML = "<p>Failed to load history.</p>";
-        showGlobalMessage("Failed to load history.", "error");
-    } finally {
-        setButtonLoading(loadHistoryBtn, "Loading...", "Load My Analyses", false);
-    }
-});
-historySearch.addEventListener("input", () => {
-    const query = historySearch.value.toLowerCase().trim();
-
-    if (!query) {
-        renderHistory(allHistoryItems);
-        return;
-    }
-
-    const filtered = allHistoryItems.filter(item =>
-        (item.fileName || "").toLowerCase().includes(query)
-    );
-
-    renderHistory(filtered);
-});
-downloadReportBtn.addEventListener("click", downloadAnalysisReport);
-updateTokenStatus();
 
 function downloadAnalysisReport() {
     if (!currentAnalysis) {
@@ -399,3 +228,214 @@ ${currentAnalysis.feedback || "-"}
     showGlobalMessage("Analysis report downloaded successfully.");
 }
 
+healthBtn.addEventListener("click", async () => {
+    try {
+        const response = await fetch(`${API_BASE}/api/health`);
+        const data = await response.json();
+        healthResult.textContent = `${data.status} - ${data.service}`;
+        showGlobalMessage("Backend is reachable.");
+    } catch (error) {
+        healthResult.textContent = "Backend connection failed";
+        showGlobalMessage("Backend connection failed.", "error");
+    }
+});
+
+registerForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    setButtonLoading(registerBtn, "Registering...", "Register", true);
+
+    const payload = {
+        fullName: document.getElementById("registerName").value,
+        email: document.getElementById("registerEmail").value,
+        password: document.getElementById("registerPassword").value
+    };
+
+    try {
+        const response = await fetch(`${API_BASE}/api/auth/register`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            registerResult.textContent = data.message || "Registration failed";
+            showGlobalMessage(registerResult.textContent, "error");
+            return;
+        }
+
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("userEmail", data.email);
+
+        registerResult.textContent = `Registered: ${data.email}`;
+        showGlobalMessage("Registration successful.");
+        updateAppState();
+    } catch (error) {
+        registerResult.textContent = "Registration failed";
+        showGlobalMessage("Registration failed.", "error");
+    } finally {
+        setButtonLoading(registerBtn, "Registering...", "Register", false);
+    }
+});
+
+loginForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    setButtonLoading(loginBtn, "Logging in...", "Login", true);
+
+    const payload = {
+        email: document.getElementById("loginEmail").value,
+        password: document.getElementById("loginPassword").value
+    };
+
+    try {
+        const response = await fetch(`${API_BASE}/api/auth/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            loginResult.textContent = data.message || "Login failed";
+            showGlobalMessage(loginResult.textContent, "error");
+            return;
+        }
+
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("userEmail", data.email);
+
+        loginResult.textContent = `Logged in as ${data.email}`;
+        showGlobalMessage("Login successful.");
+        updateAppState();
+    } catch (error) {
+        loginResult.textContent = "Login failed";
+        showGlobalMessage("Login failed.", "error");
+    } finally {
+        setButtonLoading(loginBtn, "Logging in...", "Login", false);
+    }
+});
+
+logoutBtn.addEventListener("click", () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userEmail");
+    loginResult.textContent = "Logged out";
+    registerResult.textContent = "";
+    uploadResult.textContent = "";
+    historyList.innerHTML = "<p>No history loaded yet.</p>";
+    analysisResult.innerHTML = "<p>No analysis yet.</p>";
+    updateDashboardStats([]);
+    updateAppState();
+    showGlobalMessage("Logged out successfully.");
+});
+
+uploadForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+        uploadResult.textContent = "Please login first.";
+        showGlobalMessage("Please login first.", "error");
+        return;
+    }
+
+    const fileInput = document.getElementById("resumeFile");
+    const jobDescription = document.getElementById("jobDescription").value;
+
+    if (!fileInput.files.length) {
+        uploadResult.textContent = "Please choose a PDF file.";
+        showGlobalMessage("Please choose a PDF file.", "error");
+        return;
+    }
+
+    setButtonLoading(uploadBtn, "Analyzing...", "Analyze Resume", true);
+
+    const formData = new FormData();
+    formData.append("file", fileInput.files[0]);
+    formData.append("jobDescription", jobDescription);
+
+    try {
+        const response = await fetch(`${API_BASE}/api/resumes/upload`, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${token}`
+            },
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            uploadResult.textContent = data.message || "Upload failed";
+            showGlobalMessage(uploadResult.textContent, "error");
+            return;
+        }
+
+        uploadResult.textContent = "Resume uploaded and analyzed successfully.";
+        renderAnalysis(data);
+        showGlobalMessage("Resume analyzed successfully.");
+    } catch (error) {
+        uploadResult.textContent = "Upload failed.";
+        showGlobalMessage("Upload failed.", "error");
+    } finally {
+        setButtonLoading(uploadBtn, "Analyzing...", "Analyze Resume", false);
+    }
+});
+
+loadHistoryBtn.addEventListener("click", async () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        historyList.innerHTML = "<p>Please login first.</p>";
+        showGlobalMessage("Please login first.", "error");
+        return;
+    }
+
+    setButtonLoading(loadHistoryBtn, "Loading...", "Load My Analyses", true);
+
+    try {
+        const response = await fetch(`${API_BASE}/api/resumes`, {
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            historyList.innerHTML = `<p>${data.message || "Failed to load history."}</p>`;
+            showGlobalMessage("Failed to load history.", "error");
+            return;
+        }
+
+        allHistoryItems = data;
+        renderHistory(allHistoryItems);
+        updateDashboardStats(allHistoryItems);
+        showGlobalMessage("History loaded successfully.");
+    } catch (error) {
+        historyList.innerHTML = "<p>Failed to load history.</p>";
+        showGlobalMessage("Failed to load history.", "error");
+    } finally {
+        setButtonLoading(loadHistoryBtn, "Loading...", "Load My Analyses", false);
+    }
+});
+
+historySearch.addEventListener("input", () => {
+    const query = historySearch.value.toLowerCase().trim();
+
+    if (!query) {
+        renderHistory(allHistoryItems);
+        return;
+    }
+
+    const filtered = allHistoryItems.filter(item =>
+        (item.fileName || "").toLowerCase().includes(query)
+    );
+
+    renderHistory(filtered);
+});
+
+downloadReportBtn.addEventListener("click", downloadAnalysisReport);
+
+updateAppState();
