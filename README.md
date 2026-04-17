@@ -58,32 +58,32 @@ This project follows a layered architecture for scalability and maintainability.
 
 ```text
 ai-resume-analyzer/
-│
-├── controller/        # REST API controllers
-├── service/           # Business logic and AI integration
-├── repository/        # JPA repositories
-├── entity/            # Database entities
-├── dto/               # Request/response objects
-├── security/          # JWT auth and filters
-├── config/            # Security and global exception config
-│
-└── resources/
-    ├── static/        # Frontend files
-    └── application.properties
+?
+??? controller/        # REST API controllers
+??? service/           # Business logic and AI integration
+??? repository/        # JPA repositories
+??? entity/            # Database entities
+??? dto/               # Request/response objects
+??? security/          # JWT auth and filters
+??? config/            # Security and global exception config
+?
+??? resources/
+    ??? static/        # Frontend files
+    ??? application.properties
 
 
 Layer Responsibilities:
-- Controller → Handles HTTP requests & APIs
-- Service → Business logic & processing
-- Repository → Database operations
-- Entity → DB tables mapping
-- DTO → Data transfer objects
-- Security → JWT authentication
-- Config → App configurations
+- Controller ? Handles HTTP requests & APIs
+- Service ? Business logic & processing
+- Repository ? Database operations
+- Entity ? DB tables mapping
+- DTO ? Data transfer objects
+- Security ? JWT authentication
+- Config ? App configurations
 ```
 ---
 '/'
-## ⚙️ How It Works
+## ?? How It Works
 1. User registers and logs in
 2. Uploads resume (PDF)
 3. Backend extracts text using PDFBox
@@ -98,7 +98,7 @@ Layer Responsibilities:
 
 ---
 
-## 🔐 Authentication Flow
+## ? Authentication Flow
 - User Registration
 - Login with credentials
 - JWT token generation
@@ -106,14 +106,14 @@ Layer Responsibilities:
 
 ---
 
-## 🚧 Current Status
-🟡 Backend Setup Completed  
-🔄 Authentication in Progress  
-⏳ AI Integration Pending
+## ? Current Status
+? Backend Setup Completed  
+? Authentication in Progress  
+? AI Integration Pending
 
 ---
 
-## 📈 Future Enhancements
+## ? Future Enhancements
 - Frontend Dashboard (React)
 - Resume Comparison Feature
 - ATS Score Optimization
@@ -122,7 +122,7 @@ Layer Responsibilities:
 
 ---
 
-## 🧪 API Testing
+## ? API Testing
 Use **Postman** or similar tools:
 - `/auth/register`
 - `/auth/login`
@@ -131,14 +131,14 @@ Use **Postman** or similar tools:
 
 ---
 
-## 👨‍💻 Author
+## ??? Author
 **Mayank Kumar Singh**  
 GitHub: https://github.com/Mayank-wind  
 LinkedIn: (Add later)
 
 ---
 
-## 🚀 Key Highlights
+## ? Key Highlights
 - Clean layered architecture
 - Secure REST APIs with JWT
 - AI-powered resume analysis
@@ -146,7 +146,7 @@ LinkedIn: (Add later)
 
 ---
 
-## ⭐ Why This Project?
+## ? Why This Project?
 - Real-world backend development
 - AI integration
 - Secure authentication
@@ -154,9 +154,9 @@ LinkedIn: (Add later)
 
 ---
 
-## 📌 Note
+## ? Note
 This is a **production-level SaaS project** aimed at solving real-world hiring problems using AI.
 
 ---
 
-⭐ If you like this project, consider giving it a star!
+? If you like this project, consider giving it a star!

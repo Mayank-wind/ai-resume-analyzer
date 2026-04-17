@@ -1,31 +1,25 @@
 
 services:
-  postgres:
+  postgres-db:
     image: postgres:16
-    container_name: ai-resume-postgres
+    container_name: postgres-db
     environment:
-      POSTGRES_DB: ai_resume_analyzer
+      POSTGRES_DB: resume_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
       - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
 
   app:
-    build: .
+    image: ai-resume-app
     container_name: ai-resume-app
-    depends_on:
-      - postgres
-    environment:
-      DB_URL: jdbc:postgresql://postgres:5432/ai_resume_analyzer
-      DB_DRIVER: org.postgresql.Driver
-      DB_USERNAME: postgres
-      DB_PASSWORD: postgres
-      GEMINI_API_KEY: ${GEMINI_API_KEY}
-      JWT_SECRET: ${JWT_SECRET}
     ports:
       - "8081:8080"
-
-volumes:
-  postgres_data:
+    depends_on:
+      - postgres-db
+    environment:
+      DB_URL: jdbc:postgresql://postgres-db:5432/resume_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      GEMINI_API_KEY: YOUR_API_KEY
+      JWT_SECRET: YOUR_SECRET
