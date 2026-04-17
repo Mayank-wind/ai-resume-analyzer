@@ -3,6 +3,7 @@ package com.ai.resume.service;
 import com.ai.resume.dto.ResumeAnalysisResponse;
 import com.ai.resume.entity.ResumeAnalysis;
 import com.ai.resume.entity.User;
+import com.ai.resume.exception.ResourceNotFoundException;
 import com.ai.resume.repository.ResumeAnalysisRepository;
 import com.ai.resume.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -30,7 +31,7 @@ public class ResumeAnalysisService {
 
     public ResumeAnalysisResponse uploadResume(MultipartFile file, String jobDescription, String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         String extractedText = pdfService.extractText(file);
 
@@ -76,8 +77,7 @@ public class ResumeAnalysisService {
 
     public List<ResumeAnalysisResponse> getMyAnalyses(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         return resumeAnalysisRepository.findByUserIdOrderByCreatedAtDesc(user.getId())
                 .stream()
                 .map(this::mapToResponse)
@@ -86,10 +86,10 @@ public class ResumeAnalysisService {
 
     public ResumeAnalysisResponse getAnalysisById(Long id, String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         ResumeAnalysis analysis = resumeAnalysisRepository.findByIdAndUserId(id, user.getId())
-                .orElseThrow(() -> new RuntimeException("Analysis not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Analysis not found"));
 
         return mapToResponse(analysis);
     }

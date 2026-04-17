@@ -4,6 +4,8 @@ import com.ai.resume.dto.AuthResponse;
 import com.ai.resume.dto.LoginRequest;
 import com.ai.resume.dto.RegisterRequest;
 import com.ai.resume.entity.User;
+import com.ai.resume.exception.BadRequestException;
+import com.ai.resume.exception.UnauthorizedException;
 import com.ai.resume.repository.UserRepository;
 import com.ai.resume.security.JwtService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,7 +30,8 @@ public class AuthService {
         String email = request.getEmail().trim().toLowerCase();
 
         if (userRepository.existsByEmail(email)) {
-            throw new RuntimeException("Email is already registered");
+            throw new BadRequestException("Email is already registered");
+
         }
 
         User user = new User();
@@ -53,10 +56,10 @@ public class AuthService {
         String email = request.getEmail().trim().toLowerCase();
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Invalid email or password"));
+                .orElseThrow(() -> new UnauthorizedException("Invalid email or password"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid email or password");
+            throw new UnauthorizedException("Invalid email or password");
         }
 
         String token = jwtService.generateToken(user.getEmail());
