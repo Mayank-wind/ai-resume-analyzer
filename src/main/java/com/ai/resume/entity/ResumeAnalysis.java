@@ -49,4 +49,13 @@ public class ResumeAnalysis {
     @Column(columnDefinition = "TEXT")
     private String summary;
 
+    @Column(columnDefinition = "TEXT")
+    private String skillsFound;
+
+    @Column(columnDefinition = "TEXT")
+    private String missingSkills;
+
+    @Column(columnDefinition = "TEXT")
+    private String suggestions;
+
 }

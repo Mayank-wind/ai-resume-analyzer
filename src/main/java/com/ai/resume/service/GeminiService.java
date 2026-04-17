@@ -65,23 +65,23 @@ public class GeminiService {
 
     private String buildPrompt(String resumeText, String jobDescription) {
         return """
-            Analyze the following resume for a job candidate.
+            Analyze the following resume against the given job description.
 
-            Return the analysis in exactly this format:
+            Return the result in exactly this format:
 
-            Score: <number>
+            Match Score: <number>
 
-            Strengths:
-            <write strengths>
+            Skills Found:
+            <comma-separated skills found in the resume relevant to the job description>
 
-            Weaknesses:
-            <write weaknesses>
+            Missing Skills:
+            <comma-separated important skills missing from the resume compared to the job description>
 
-            Improvements:
-            <write improvements>
+            Suggestions:
+            <practical suggestions to improve the resume for this job>
 
             Summary:
-            <write short recruiter summary>
+            <short recruiter-style summary>
 
             Job Description:
             %s
@@ -93,7 +93,6 @@ public class GeminiService {
                 resumeText
         );
     }
-
 
     public int extractScore(String feedback) {
         try {
@@ -130,4 +129,19 @@ public class GeminiService {
 
         return feedback.substring(start, end).trim();
     }
+    public int extractMatchScore(String feedback) {
+        try {
+            String[] lines = feedback.split("\\R");
+            for (String line : lines) {
+                line = line.trim();
+                if (line.toLowerCase().startsWith("match score:")) {
+                    String value = line.substring("match score:".length()).trim();
+                    return Integer.parseInt(value.replaceAll("[^0-9]", ""));
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return 0;
+    }
+
 }

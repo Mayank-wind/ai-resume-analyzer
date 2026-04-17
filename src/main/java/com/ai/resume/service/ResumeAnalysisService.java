@@ -35,41 +35,39 @@ public class ResumeAnalysisService {
         String extractedText = pdfService.extractText(file);
 
         String feedback;
-        int score;
-        String strengths;
-        String weaknesses;
-        String improvements;
+        int matchScore;
+        String skillsFound;
+        String missingSkills;
+        String suggestions;
         String summary;
 
         try {
             feedback = geminiService.analyzeResume(extractedText, jobDescription);
-            score = geminiService.extractScore(feedback);
-            strengths = geminiService.extractSection(feedback, "Strengths", "Weaknesses", "Improvements", "Summary");
-            weaknesses = geminiService.extractSection(feedback, "Weaknesses", "Improvements", "Summary");
-            improvements = geminiService.extractSection(feedback, "Improvements", "Summary");
+            matchScore = geminiService.extractMatchScore(feedback);
+            skillsFound = geminiService.extractSection(feedback, "Skills Found", "Missing Skills", "Suggestions", "Summary");
+            missingSkills = geminiService.extractSection(feedback, "Missing Skills", "Suggestions", "Summary");
+            suggestions = geminiService.extractSection(feedback, "Suggestions", "Summary");
             summary = geminiService.extractSection(feedback, "Summary");
         } catch (Exception e) {
             feedback = "AI analysis is temporarily unavailable";
-            score = 0;
-            strengths = "";
-            weaknesses = "";
-            improvements = "";
+            matchScore = 0;
+            skillsFound = "";
+            missingSkills = "";
+            suggestions = "";
             summary = "";
         }
-
 
         ResumeAnalysis analysis = new ResumeAnalysis();
         analysis.setFileName(file.getOriginalFilename());
         analysis.setExtractedText(extractedText);
         analysis.setJobDescription(jobDescription);
-        analysis.setScore(score);
+        analysis.setScore(matchScore);
         analysis.setFeedback(feedback);
-        analysis.setStrengths(strengths);
-        analysis.setWeaknesses(weaknesses);
-        analysis.setImprovements(improvements);
         analysis.setSummary(summary);
+        analysis.setSkillsFound(skillsFound);
+        analysis.setMissingSkills(missingSkills);
+        analysis.setSuggestions(suggestions);
         analysis.setUser(user);
-
 
         ResumeAnalysis saved = resumeAnalysisRepository.save(analysis);
 
@@ -103,11 +101,15 @@ public class ResumeAnalysisService {
                 analysis.getExtractedText(),
                 analysis.getJobDescription(),
                 analysis.getScore(),
+                analysis.getScore(),
                 analysis.getFeedback(),
                 analysis.getStrengths(),
                 analysis.getWeaknesses(),
                 analysis.getImprovements(),
                 analysis.getSummary(),
+                analysis.getSkillsFound(),
+                analysis.getMissingSkills(),
+                analysis.getSuggestions(),
                 analysis.getCreatedAt()
         );
     }
