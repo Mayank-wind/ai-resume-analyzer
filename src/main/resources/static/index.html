@@ -9,14 +9,22 @@
 <body>
 <div class="app-shell">
     <header class="topbar">
-        <div>
+        <div class="hero-copy">
             <span class="badge">AI + Spring Boot + PostgreSQL</span>
-            <h1>AI Resume Analyzer</h1>
+            <h1>Smarter Resume Analysis for Better Job Matches</h1>
             <p class="subtitle">
-                Welcome to your smart resume review workspace. Upload your resume,
-                compare it against job descriptions, and get AI-powered feedback that feels professional and useful.
+                Analyze resumes against job descriptions, discover missing skills, measure resume-job match score,
+                and generate recruiter-style insights in one professional dashboard.
             </p>
+
+            <div class="hero-points">
+                <span>Match Score</span>
+                <span>Skill Gap Analysis</span>
+                <span>AI Suggestions</span>
+                <span>History Tracking</span>
+            </div>
         </div>
+
         <div class="topbar-actions">
             <span id="userWelcome" class="user-welcome hidden"></span>
             <button id="logoutBtn" class="secondary-btn hidden">Logout</button>
@@ -26,15 +34,32 @@
     <div id="globalMessage" class="global-message hidden"></div>
 
     <section id="introSection" class="intro-card">
-        <h2>Welcome</h2>
-        <p>If you already have an account, login to continue your analysis workspace.</p>
-        <p>If you are new here, register first and we will open your personal AI resume dashboard.</p>
+        <div class="intro-grid">
+            <div>
+                <h2>Welcome to AI Resume Analyzer</h2>
+                <p>
+                    This platform helps candidates and recruiters understand how well a resume matches a job description.
+                    Upload a resume, compare it against a role, and get actionable AI-powered feedback instantly.
+                </p>
+            </div>
+
+            <div class="intro-highlight">
+                <h3>What you can do here</h3>
+                <ul>
+                    <li>Login or create your account</li>
+                    <li>Upload your resume securely</li>
+                    <li>Compare against a job description</li>
+                    <li>See skill gaps and improvement suggestions</li>
+                    <li>Review saved analysis history anytime</li>
+                </ul>
+            </div>
+        </div>
     </section>
 
     <section id="authSection" class="auth-layout">
         <div class="card auth-card">
             <h2>Login</h2>
-            <p class="section-text">Already registered? Login and continue from your saved history.</p>
+            <p class="section-text">Already registered? Sign in to continue from your saved analysis history and dashboard.</p>
             <form id="loginForm">
                 <input type="email" id="loginEmail" placeholder="Email" required />
                 <input type="password" id="loginPassword" placeholder="Password" required />
@@ -45,7 +70,7 @@
 
         <div class="card auth-card">
             <h2>Register</h2>
-            <p class="section-text">New here? Create your account and open your personal AI resume analyzer.</p>
+            <p class="section-text">New here? Create your account to open your private AI resume analysis workspace.</p>
             <form id="registerForm">
                 <input type="text" id="registerName" placeholder="Full Name" required />
                 <input type="email" id="registerEmail" placeholder="Email" required />
